@@ -1,4 +1,6 @@
-# Siprogo
+# siprogo_example
+
+This project is an implementation example of Siprogo.
 
 # Index
 * [Introduction](#introduction)
