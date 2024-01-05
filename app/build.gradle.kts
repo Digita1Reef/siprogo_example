@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.myapplication"
-        minSdk = 34
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -59,7 +59,7 @@ android {
 
 dependencies {
 
-    implementation ("com.github.Digita1Reef.siprogo:sdk:0.0.4-debug")
+    implementation ("com.github.Digita1Reef.siprogo:sdk:1.0.1-release")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
