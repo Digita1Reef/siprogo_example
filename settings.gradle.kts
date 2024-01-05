@@ -7,7 +7,7 @@ if (localPropertiesFile.exists()) {
         localProperties.load(it)
     }
 }
-val mytoken: String = localProperties.getProperty("TOKEN")
+val mytoken: String = localProperties.getProperty("TOKEN") ?: ""
 
 pluginManagement {
     repositories {
