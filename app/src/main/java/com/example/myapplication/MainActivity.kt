@@ -20,12 +20,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainActivityContent() {
-    val secretKey = BuildConfig.SECRET_KEY
-    SDKImplementation(
-        context = LocalContext.current,
-        secretKey = secretKey,
-        theme = ExampleTheme
-    ).renderApp()
+    SiprogoSdkProvider.sdk.renderApp(enabledBottomNavigation = false)
 }
 
 @Preview(showBackground = false)

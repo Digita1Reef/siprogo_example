@@ -58,7 +58,7 @@ android {
 
 dependencies {
 
-    implementation ("com.github.Digita1Reef.siprogo:sdk:1.0.1-release")
+    implementation ("com.github.Digita1Reef.siprogo:sdk:1.0.2-release")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
