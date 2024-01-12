@@ -3,25 +3,27 @@
 This project is an implementation example of Siprogo.
 
 # Index
-* [Introduction](#introduction)
-  * [Compilation and Prerequisites](#compilation-and-prerequisites)
-* [Installation](#installation)
-  * [settings.gradle](#settingsgradlekts--project-root-)
-  * [build.gradle](#buildgradle--app-)
-* [Quick Start](#quick-start-guide)
-  * [Code Example](#code-example)
-* [Themes](#themes)
-  * [Code Example Theme](#code-example---theme)
 
+* [Introduction](#introduction)
+    * [Compilation and Prerequisites](#compilation-and-prerequisites)
+* [Installation](#installation)
+    * [settings.gradle](#settingsgradlekts--project-root-)
+    * [build.gradle](#buildgradle--app-)
+* [Quick Start](#quick-start-guide)
+    * [Code Example](#code-example)
+* [Themes](#themes)
+    * [Code Example Theme](#code-example---theme)
 
 ## Introduction
-Siprogo is a solution developed in [Kotlin](https://kotlinlang.org/) that facilitates the distribution and customization of content,
-requiring only the importation, resolution of dependencies, and implementation of
-resources.
+
+Siprogo is a solution developed in [Kotlin](https://kotlinlang.org/) that facilitates the
+distribution and customization of content, requiring only the importation, resolution of
+dependencies, and implementation of resources.
 
 ## Compilation and Prerequisites
-To access the artifacts, you need to have an `authentication token` on [Jitpack](https://jitpack.io/),
-as well as the `secretKey` of your organizations.
+
+To access the artifacts, you need to have an `authentication token`
+on [Jitpack](https://jitpack.io/), as well as the `secretKey` of your organizations.
 
 Siprogo is compiled with the following parameters:
 
@@ -30,16 +32,16 @@ android{
     compileSdk = 34
     ...    
         defaultConfig {
-            minSdk = 24
+            minSdk = 21
             ...
         }
         
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
         kotlinOptions {
-            jvmTarget = "17"
+            jvmTarget = "1.8"
         }
         buildFeatures {
             compose = true
@@ -51,10 +53,12 @@ android{
 ```
 
 ## Installation
+
 Access to the library is via [Jitpack](https://jitpack.io/) and should be added to the dependencies
 and assembly of the project/application.
 
 ### settings.gradle.kts (project root)
+
 ``` 
     dependencyResolutionManagement {
     ...
@@ -74,13 +78,20 @@ and assembly of the project/application.
 dependencies {
     implementation ("com.github.Digita1Reef.siprogo:sdk:[tag]")
     ...
+}
 ```
 
 ## Quick Start Guide
-Once the imports are done and the project is synchronized, various packages become available for partial or total implementation of the resources.
 
-For full implementation, the `SDKImplementation` method contained in the package
-`com.siprocal.siprogo.sdk` should be implemented, with the following constructor:
+Once the imports are done and the project is synchronized, various packages become available for
+partial or total implementation of the resources.
+
+For a robust implementation, it's recommended to create an instance of `SDKImplementation` in
+your `Application` class using the `SiprogoSdkProvider`. This ensures that the SDK instance isn't
+recreated on each render or live edit, maintaining optimal performance and resource management.
+
+Implement the `SDKImplementation` method contained in the `com.siprocal.siprogo.sdk` package with
+the following constructor:
 
 ```
 SDKImplementation (
@@ -91,19 +102,46 @@ SDKImplementation (
 ```
 
 ### Code Example
-The implementation at the Activity level is exemplified below.
 
+The implementation at the Application level is exemplified below, with `MainActivity` using the SDK
+instance.
+
+```kotlin
+//SiprogoSdkProvider.kt
+object SiprogoSdkProvider {
+    lateinit var sdk: SDKImplementation
+        private set
+
+    fun initialize(
+        context: Context,
+        secretKey: String,
+        theme: SiprogoThemeDefinition? = null
+    ) {
+        sdk = SDKImplementation(
+            context = context,
+            secretKey = secretKey,
+            theme = theme
+        )
+    }
+}
 ```
-package com.example.myapplication
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import com.siprocal.siprogo.sdk.SDKImplementation
+```kotlin
+// MainApplication.kt
+class MainApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        SiprogoSdkProvider.initialize(
+            context = this,
+            theme = ExampleTheme,
+            secretKey = BuildConfig.SECRET_KEY
+        )
+    }
+}
+```
 
+```kotlin
+// MainActivity.kt
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,10 +153,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainActivityContent() {
-    SDKImplementation(
-        context = LocalContext.current,
-        secretKey = "[ORGANIZATION_SECRETKEY]"
-    ).renderApp()
+    SiprogoSdkProvider.sdk.renderApp(enabledBottomNavigation = false)
 }
 
 @Preview(showBackground = false)
@@ -128,39 +163,48 @@ fun GreetingPreview() {
 }
 ```
 
-The implementation above shows the screen result for the `0.0.3-release` version of the SDK.
+## Implementation Note on SiprogoSdkProvider
+
+In this implementation example, we have utilized the `SiprogoSdkProvider` to manage the instance of
+the Siprogo SDK. The `SiprogoSdkProvider` is initialized in the `Application` class of the Android
+project, ensuring that the SDK is maintained as a singleton instance throughout the app's lifecycle.
+This approach is adopted to prevent unnecessary re-creation of the SDK during runtime, thereby
+optimizing performance and resource management. It’s an effective pattern for ensuring that the SDK
+remains available and consistent across different components of the application.
+
+The implementation above shows the screen result for the `1.0.2-release` version of the SDK.
 
 ![screen_basic.png](./images/screen_basic.png)
 
-
 ## Themes
-An optional argument in the SDKImplementation implementation is the Theme. In it, it's possible to adapt to each implementation reality.
+
+An optional argument in the SDKImplementation implementation is the Theme. In it, it's possible to
+adapt to each implementation reality.
 
 ### Code Example - Theme
 
 #### MainActivity
-```
-...
-fun MainActivityContent() {
-    SDKImplementation(
-        context = LocalContext.current,
-        secretKey = secretKey,
-        theme = ExampleTheme
-    ).renderApp()
+
+```kotlin
+// MainActivity.kt with theme
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MainActivityContent()
+        }
+    }
 }
-...
+
+@Composable
+fun MainActivityContent() {
+    SiprogoSdkProvider.sdk.renderApp(enabledBottomNavigation = false)
+}
 ```
 
 #### ExampleTheme
+
 ```
-package com.example.myapplication.ui.theme
-
-import com.siprocal.siprogo.sdk_contracts.theme.SiprogoThemeColors
-import com.siprocal.siprogo.sdk_contracts.theme.SiprogoThemeDefinition
-import com.siprocal.siprogo.sdk_contracts.theme.SiprogoThemeFonts
-import com.siprocal.siprogo.test_as_activity_app.ui.theme.ExampleThemeColors
-import com.siprocal.siprogo.test_as_activity_app.ui.theme.ExampleThemeFonts
-
 object ExampleTheme : SiprogoThemeDefinition {
     override val colors: SiprogoThemeColors = ExampleThemeColors
     override val fonts: SiprogoThemeFonts = ExampleThemeFonts
@@ -168,10 +212,8 @@ object ExampleTheme : SiprogoThemeDefinition {
 ```
 
 #### ExampleThemeColors
-```
-package com.example.myapplication.ui.theme
 
-import androidx.compose.ui.graphics.Color
+```
 import com.siprocal.siprogo.sdk_contracts.theme.SiprogoThemeColors
 
 object ExampleThemeColors : SiprogoThemeColors {
@@ -198,13 +240,8 @@ object ExampleThemeColors : SiprogoThemeColors {
 ```
 
 #### ExampleThemeFonts
-```
-package com.example.myapplication.ui.theme
 
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
-import com.example.myapplication.R
+```
 import com.siprocal.siprogo.sdk_contracts.theme.SiprogoThemeFonts
 
 object ExampleThemeFonts : SiprogoThemeFonts {
@@ -238,4 +275,5 @@ object ExampleThemeFonts : SiprogoThemeFonts {
 ```
 
 #### Example applying a custom theme
+
 ![screen_theme.png](./images/screen_theme.png)
